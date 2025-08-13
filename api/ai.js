@@ -1,10 +1,8 @@
 // api/ai.js - Enhanced serverless function for AI-powered video analysis
 
-// In-memory rate limiting store (for simple deployment)
-// For production, use Redis or database-backed solution
 const rateLimitStore = new Map();
 
-// Configuration
+
 const CONFIG = {
     MAX_DESCRIPTION_LENGTH: 10000, // characters
     RATE_LIMIT_REQUESTS: 10, // requests per window
@@ -13,7 +11,6 @@ const CONFIG = {
     REQUEST_TIMEOUT: 30000, // 30 seconds
 };
 
-// Generate appropriate prompt based on request type
 function generatePrompt(requestType, data) {
     if (requestType === 'summary') {
         return `Please provide a clear, concise summary of the following video description. Focus on the key points and main content. Keep the summary under 200 words:\n\n${data.description}`;
@@ -63,7 +60,7 @@ function getClientId(req) {
            'unknown';
 }
 
-// Validate and sanitize input
+
 function validateInput(description) {
     if (!description) {
         return { isValid: false, error: 'Description is required' };
@@ -87,7 +84,7 @@ function validateInput(description) {
     return { isValid: true, sanitized: description.trim() };
 }
 
-// Enhanced error logging
+
 function logError(context, error, additionalInfo = {}) {
     const logEntry = {
         timestamp: new Date().toISOString(),
@@ -99,7 +96,7 @@ function logError(context, error, additionalInfo = {}) {
     console.error('API Error:', JSON.stringify(logEntry, null, 2));
 }
 
-// Set CORS headers
+
 function setCORSHeaders(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -136,7 +133,6 @@ export default async function handler(req, res) {
             });
         }
 
-        // Validate API key
         if (!process.env.GEMINI_API_KEY) {
             logError('Configuration', new Error('Missing GEMINI_API_KEY'), { clientId });
             return res.status(500).json({ 
@@ -196,7 +192,7 @@ if (description && !title && !analysisType) {
         message: 'Must provide either description (for summary) or title/analysisType (for chat)'
     });
 }
-        // Create request with timeout
+     
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
 
@@ -257,7 +253,6 @@ if (description && !title && !analysisType) {
             });
         }
 
-        // Extract and validate AI response
         const summary = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (!summary || typeof summary !== 'string' || summary.trim().length === 0) {
@@ -319,4 +314,5 @@ if (requestType === 'summary') {
         logError('Server Error', error, { clientId, url: req.url });
         res.status(500).json(errorResponse);
     }
+
 }
