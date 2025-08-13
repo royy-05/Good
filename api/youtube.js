@@ -6,7 +6,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed. Use POST.' });
     }
 
-    // CORS headers for browser requests
+
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // Get YouTube API key from environment variables
+     
         const API_KEY = process.env.YOUTUBE_API_KEY;
         
         if (!API_KEY) {
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         const video = videoData.items[0];
         const channelId = video.snippet.channelId;
 
-        // Fetch channel information
+
         let channelData = null;
         try {
             const channelResponse = await fetch(
@@ -96,7 +96,6 @@ export default async function handler(req, res) {
             // Continue without channel data
         }
 
-        // Prepare response data
         const responseData = {
             video: {
                 id: video.id,
@@ -163,46 +162,3 @@ export default async function handler(req, res) {
     }
 }
 
-// Alternative export for different serverless platforms
-// Uncomment if using Netlify Functions instead of Vercel
-/*
-exports.handler = async (event, context) => {
-    const req = {
-        method: event.httpMethod,
-        body: event.httpMethod === 'POST' ? JSON.parse(event.body) : null
-    };
-    
-    const res = {
-        statusCode: 200,
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        },
-        body: '',
-        status: function(code) {
-            this.statusCode = code;
-            return this;
-        },
-        json: function(data) {
-            this.body = JSON.stringify(data);
-            return this;
-        },
-        setHeader: function() {
-            // Headers already set above
-        },
-        end: function() {
-            return this;
-        }
-    };
-    
-    await handler(req, res);
-    
-    return {
-        statusCode: res.statusCode,
-        headers: res.headers,
-        body: res.body
-    };
-};
-*/
